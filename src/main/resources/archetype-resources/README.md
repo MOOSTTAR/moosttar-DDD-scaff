@@ -58,7 +58,7 @@ $HASH$HASH 使用 Archetype 生成新项目
 
 ```bash
 mvn archetype:generate \
-  -DarchetypeGroupId=cn.moosttar \
+  -DarchetypeGroupId=io.github.moosttar \
   -DarchetypeArtifactId=moosttar-ddd-scaff \
   -DarchetypeVersion=1.1 \
   -DgroupId=你的group \
@@ -66,7 +66,7 @@ mvn archetype:generate \
   -Dpackage=你的包名
 ```
 
-> GitHub Packages 下载需要认证，首次使用请先按《发布与使用》文档配置 `~/.m2/settings.xml`。
+> 脚手架已发布到 Maven Central，免认证，可直接用于生成项目。
 
 $HASH$HASH License
 

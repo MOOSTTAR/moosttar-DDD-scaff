@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>cn.moosttar</groupId>
+    <groupId>io.github.moosttar</groupId>
     <artifactId>moosttar-ddd-scaff</artifactId>
     <version>1.1</version>
     <packaging>maven-archetype</packaging>
@@ -37,6 +37,11 @@
         <tag>v1.1</tag>
     </scm>
 
+    <properties>
+        <!-- gpg.skip=true 时跳过 GPG 签名（本地快速构建用）；CI 发布时传 -Dgpg.skip=false 并设置 GPG_PASSPHRASE -->
+        <gpg.skip>false</gpg.skip>
+    </properties>
+
     <build>
         <extensions>
             <extension>
@@ -56,14 +61,75 @@
                     <useDefaultExcludes>false</useDefaultExcludes>
                 </configuration>
             </plugin>
+            <!-- 以下满足 Maven Central 发布规则：GPG 签名 + sources jar + javadoc jar。
+                 archetype 的 packaging 非 Java classpath-capable，maven-javadoc-plugin 会直接跳过
+                 （"Not executing Javadoc..."），故 javadoc jar 用 maven-jar-plugin 生成空占位包。 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.3.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.4.2</version>
+                <executions>
+                    <execution>
+                        <id>empty-javadoc-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <!-- 打一个空的 -javadoc.jar（仅含 src/main/javadoc 下的占位说明）以通过 Central 校验 -->
+                            <classifier>javadoc</classifier>
+                            <classesDirectory>${project.basedir}/src/main/javadoc</classesDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <version>3.2.4</version>
+                <configuration>
+                    <!-- CI 发布时从环境变量 GPG_PASSPHRASE 读密钥口令；本地快速构建用 -Dgpg.skip=true 跳过 -->
+                    <skip>${gpg.skip}</skip>
+                    <passphrase>${env.GPG_PASSPHRASE}</passphrase>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
     <distributionManagement>
+        <!-- Maven Central（Central Portal）。deploy 后用 token 认证，
+            详见 https://central.sonatype.com —— 发布无需认证下载，IDEA 可直接选 archetype -->
+        <snapshotRepository>
+            <id>central</id>
+            <name>Central Portal Snapshots</name>
+            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
         <repository>
-            <id>github</id>
-            <name>GitHub MOOSTTAR Apache Maven Packages</name>
-            <url>https://maven.pkg.github.com/moosttar/moosttar-DDD-scaff</url>
+            <id>central</id>
+            <name>Central Portal Releases</name>
+            <url>https://central.sonatype.com/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
 </project>

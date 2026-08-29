@@ -1,4 +1,4 @@
-name: Publish to GitHub Packages
+name: Publish to Maven Central
 
 on:
   push:
@@ -11,7 +11,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,17 +20,31 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          # 将 PAT 写入 server id=github 的 settings.xml，
-          # 与 pom.xml 中 distributionManagement.repository.id=github 对应。
-          # 注意：GITHUB_TOKEN 在此仓库的 Maven 包认证上会被 401 拒绝（GitHub Packages 已知问题），
-          # 故改用显式 PAT（仓库 secret GH_PAT，scope: write:packages）。
-          server-id: github
+          # Central Portal 发布仓库用 User Token 认证（server id=central 对应 pom 的 distributionManagement）
+          server-id: central
           server-username: MAVEN_USERNAME
           server-password: MAVEN_PASSWORD
+          # 导入 GPG 私钥，供 maven-gpg-plugin 签名
+          gpg-private-key: ${{ secrets.GPG_PRIVATE_KEY }}
+          gpg-passphrase: GPG_PASSPHRASE
           cache: maven
+        env:
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Publish with Maven
+      - name: Deploy to Central Portal
         run: mvn --batch-mode --no-transfer-progress clean deploy
         env:
-          MAVEN_USERNAME: MOOSTTAR
-          MAVEN_PASSWORD: ${{ secrets.GH_PAT }}
+          MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
+
+      # Central Portal 的 release 仓库 deploy 后默认是 staging 状态，
+      # 需调用 publish API 触发对外发布，几分钟后同步到 Maven Central。
+      - name: Publish release on Central Portal
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          curl -sS -X POST \
+            -u "${{ secrets.CENTRAL_USERNAME }}:${{ secrets.CENTRAL_PASSWORD }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"name\":\"io.github.moosttar.moosttar-ddd-scaff-${VERSION}\"}" \
+            https://central.sonatype.com/api/v1/publisher/publish
