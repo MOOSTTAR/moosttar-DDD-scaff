@@ -21,10 +21,17 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-          # 将仓库级 GITHUB_TOKEN 写入 server id=github 的 settings.xml，
-          # 与 pom.xml 中 distributionManagement.repository.id=github 对应
+          # 将 PAT 写入 server id=github 的 settings.xml，
+          # 与 pom.xml 中 distributionManagement.repository.id=github 对应。
+          # 注意：GITHUB_TOKEN 在此仓库的 Maven 包认证上会被 401 拒绝（GitHub Packages 已知问题），
+          # 故改用显式 PAT（仓库 secret GH_PAT，scope: write:packages）。
           server-id: github
+          server-username: MAVEN_USERNAME
+          server-password: MAVEN_PASSWORD
           cache: maven
 
       - name: Publish with Maven
         run: mvn --batch-mode --no-transfer-progress clean deploy
+        env:
+          MAVEN_USERNAME: MOOSTTAR
+          MAVEN_PASSWORD: ${{ secrets.GH_PAT }}
