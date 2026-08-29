@@ -31,20 +31,11 @@ jobs:
         env:
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
-      - name: Deploy to Central Portal
+      # central-publishing-maven-plugin 在 deploy 阶段上传 bundle 到 Central Portal，
+      # autoPublish=true 会自动发布（无需手动 Publish），waitUntil=published 等发布完成。
+      - name: Deploy to Maven Central
         run: mvn --batch-mode --no-transfer-progress clean deploy
         env:
           MAVEN_USERNAME: ${{ secrets.CENTRAL_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.CENTRAL_PASSWORD }}
           GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
-
-      # Central Portal 的 release 仓库 deploy 后默认是 staging 状态，
-      # 需调用 publish API 触发对外发布，几分钟后同步到 Maven Central。
-      - name: Publish release on Central Portal
-        run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          curl -sS -X POST \
-            -u "${{ secrets.CENTRAL_USERNAME }}:${{ secrets.CENTRAL_PASSWORD }}" \
-            -H "Content-Type: application/json" \
-            -d "{\"name\":\"io.github.moosttar.moosttar-ddd-scaff-${VERSION}\"}" \
-            https://central.sonatype.com/api/v1/publisher/publish

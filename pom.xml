@@ -115,21 +115,27 @@
                     </execution>
                 </executions>
             </plugin>
+            <!-- 发布到 Maven Central（Central Portal）的官方插件，接管 deploy 阶段：
+                 extensions=true 使其替换 maven-deploy-plugin，上传 bundle 后自动发布。
+                 认证走 settings.xml 的 server id=central（User Token）。 -->
+            <plugin>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.7.0</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <publishingServerId>central</publishingServerId>
+                    <!-- 上传并通过校验后自动对外发布，无需在 Portal 手动点 Publish -->
+                    <autoPublish>true</autoPublish>
+                    <!-- 构建等到发布完成（同步到 Maven Central）后才返回 -->
+                    <waitUntil>published</waitUntil>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <distributionManagement>
-        <!-- Maven Central（Central Portal）。deploy 后用 token 认证，
-            详见 https://central.sonatype.com —— 发布无需认证下载，IDEA 可直接选 archetype -->
-        <snapshotRepository>
-            <id>central</id>
-            <name>Central Portal Snapshots</name>
-            <url>https://central.sonatype.com/repository/maven-snapshots/</url>
-        </snapshotRepository>
-        <repository>
-            <id>central</id>
-            <name>Central Portal Releases</name>
-            <url>https://central.sonatype.com/repository/maven-releases/</url>
-        </repository>
+        <!-- 发布到 Maven Central 使用 Sonatype central-publishing-maven-plugin（见 build.plugins），
+            它在 deploy 阶段上传 bundle 到 Central Portal 并自动发布，无需手动操作。 -->
     </distributionManagement>
 </project>
