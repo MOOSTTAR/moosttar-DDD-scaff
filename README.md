@@ -1,4 +1,4 @@
-# moosttar-DDD-scaff
+# moosttar-ddd-scaff
 
 基于 DDD（Domain-Driven Design）分层架构的 Java 后端 Maven Archetype 脚手架，开箱即用。一条命令即可生成整套多模块项目。
 
@@ -9,7 +9,7 @@
 ```bash
 mvn archetype:generate \
   -DarchetypeGroupId=cn.moosttar \
-  -DarchetypeArtifactId=moosttar-DDD-scaff \
+  -DarchetypeArtifactId=moosttar-ddd-scaff \
   -DarchetypeVersion=1.1 \
   -DgroupId=你的group \
   -DartifactId=你的项目名 \

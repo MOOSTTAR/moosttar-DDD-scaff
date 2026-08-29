@@ -59,7 +59,7 @@ $HASH$HASH 使用 Archetype 生成新项目
 ```bash
 mvn archetype:generate \
   -DarchetypeGroupId=cn.moosttar \
-  -DarchetypeArtifactId=moosttar-DDD-scaff \
+  -DarchetypeArtifactId=moosttar-ddd-scaff \
   -DarchetypeVersion=1.1 \
   -DgroupId=你的group \
   -DartifactId=你的项目名 \

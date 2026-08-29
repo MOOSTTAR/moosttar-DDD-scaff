@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>cn.moosttar</groupId>
-    <artifactId>moosttar-DDD-scaff</artifactId>
+    <artifactId>moosttar-ddd-scaff</artifactId>
     <version>1.1</version>
     <packaging>maven-archetype</packaging>
 
-    <name>moosttar-DDD-scaff</name>
+    <name>moosttar-ddd-scaff</name>
     <description>DDD 多模块脚手架（DDD Scaffold Archetype）— 基于 Spring Boot 2.7，内置 api/app/domain/trigger/infrastructure/types 六模块分层</description>
     <url>https://github.com/MOOSTTAR/moosttar-DDD-scaff</url>
 
