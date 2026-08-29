@@ -1,0 +1,1 @@
+package ${package}.infrastructure.gateway.dto;

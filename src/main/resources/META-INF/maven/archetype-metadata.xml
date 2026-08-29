@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<archetype-descriptor
+        xmlns="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://maven.apache.org/plugins/maven-archetype-plugin/archetype-descriptor/1.1.0
+        http://maven.apache.org/xsd/archetype-descriptor-1.1.0.xsd"
+        name="moosttar-DDD-scaff">
+
+    <requiredProperties>
+        <requiredProperty key="groupId"/>
+        <requiredProperty key="artifactId"/>
+        <requiredProperty key="version"/>
+        <requiredProperty key="package">
+            <defaultValue>${groupId}</defaultValue>
+        </requiredProperty>
+    </requiredProperties>
+
+    <modules>
+        <!-- api：对外接口层 -->
+        <module id="${rootArtifactId}-api" dir="__rootArtifactId__-api">
+            <fileSets>
+                <fileSet filtered="true" packaged="true">
+                    <directory>src/main/java</directory>
+                    <includes><include>**/*.java</include></includes>
+                </fileSet>
+            </fileSets>
+        </module>
+
+        <!-- app：应用层（启动入口 / 配置 / Web 层组装），含测试与运行资源 -->
+        <module id="${rootArtifactId}-app" dir="__rootArtifactId__-app">
+            <fileSets>
+                <fileSet filtered="true" packaged="true">
+                    <directory>src/main/java</directory>
+                    <includes><include>**/*.java</include></includes>
+                </fileSet>
+                <fileSet filtered="true" packaged="true">
+                    <directory>src/test/java</directory>
+                    <includes><include>**/*.java</include></includes>
+                </fileSet>
+                <!-- 常规 resources 过滤；sharding-jdbc-dev.yaml 含 ShardingSphere 的 $->{..} 占位符，
+                     若被 velocity 处理会失效，故单独走下方非过滤 fileSet -->
+                <fileSet filtered="true">
+                    <directory>src/main/resources</directory>
+                    <includes>
+                        <include>**/*.yml</include>
+                        <include>**/*.xml</include>
+                    </includes>
+                </fileSet>
+                <fileSet>
+                    <directory>src/main/resources/sharding</directory>
+                    <includes><include>sharding-jdbc-dev.yaml</include></includes>
+                </fileSet>
+                <fileSet filtered="true">
+                    <directory></directory>
+                    <includes>
+                        <include>Dockerfile</include>
+                        <include>build.sh</include>
+                    </includes>
+                </fileSet>
+            </fileSets>
+        </module>
+
+        <!-- domain：领域层 -->
+        <module id="${rootArtifactId}-domain" dir="__rootArtifactId__-domain">
+            <fileSets>
+                <fileSet filtered="true" packaged="true">
+                    <directory>src/main/java</directory>
+                    <includes><include>**/*.java</include></includes>
+                </fileSet>
+            </fileSets>
+        </module>
+
+        <!-- trigger：触发层 -->
+        <module id="${rootArtifactId}-trigger" dir="__rootArtifactId__-trigger">
+            <fileSets>
+                <fileSet filtered="true" packaged="true">
+                    <directory>src/main/java</directory>
+                    <includes><include>**/*.java</include></includes>
+                </fileSet>
+            </fileSets>
+        </module>
+
+        <!-- infrastructure：基础设施层 -->
+        <module id="${rootArtifactId}-infrastructure" dir="__rootArtifactId__-infrastructure">
+            <fileSets>
+                <fileSet filtered="true" packaged="true">
+                    <directory>src/main/java</directory>
+                    <includes><include>**/*.java</include></includes>
+                </fileSet>
+            </fileSets>
+        </module>
+
+        <!-- types：公共类型层 -->
+        <module id="${rootArtifactId}-types" dir="__rootArtifactId__-types">
+            <fileSets>
+                <fileSet filtered="true" packaged="true">
+                    <directory>src/main/java</directory>
+                    <includes><include>**/*.java</include></includes>
+                </fileSet>
+            </fileSets>
+        </module>
+    </modules>
+
+    <fileSets>
+        <!-- 运维脚本 / 中间件配置（含 ${...} 模板变量，需过滤） -->
+        <fileSet filtered="true">
+            <directory>docs</directory>
+            <includes>
+                <include>**/*.sh</include>
+                <include>**/*.yml</include>
+                <include>**/*.sql</include>
+                <include>**/redis/redis.conf</include>
+            </includes>
+            <excludes>
+                <exclude>**/rocketmq/data/**</exclude>
+            </excludes>
+        </fileSet>
+        <!-- rocketmq console / broker 运行时数据：含大量原始 $ 字符，不过滤 -->
+        <fileSet>
+            <directory>docs</directory>
+            <includes>
+                <include>**/rocketmq/data/**</include>
+            </includes>
+        </fileSet>
+        <!-- 生成项目根目录文件：README 含 ${artifactId} 需过滤；
+             .gitignore 含 ### 注释头，velocity 会把 ## 当行注释吞掉，故不过滤 -->
+        <fileSet filtered="true">
+            <directory></directory>
+            <includes>
+                <include>README.md</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory></directory>
+            <includes>
+                <include>.gitignore</include>
+            </includes>
+        </fileSet>
+    </fileSets>
+</archetype-descriptor>
